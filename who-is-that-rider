@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Who's that rider?</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        .clickable-row {
+            cursor: pointer;
+        }
+        .clickable-row:hover {
+            background-color: #f5f5f5;
+        }
+    </style>
+    <script src="https://unpkg.com/vue@2"></script>
+</head>
+<body>
+<div id="app" class="container my-3">
+    <h1 class="text-center mb-3">Who's that rider?</h1>
+    <form v-if="showRaces" @submit.prevent="getRaces" class="mb-3">
+        <div class="form-group">
+            <label for="year">Year:</label>
+            <input type="number" id="year" v-model="year" class="form-control">
+        </div>
+        <div class="form-group">
+            <label for="month">Month:</label>
+            <input type="number" id="month" v-model="month" min="1" max="12" class="form-control">
+        </div>
+        <button type="submit" class="btn btn-primary">Get Races</button>
+    </form>
+    <div v-if="showRaces">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Race Information</th>
+                <th>Category</th>
+                <th>Date</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="clickable-row" v-for="race in races" @click="getStartList(race.link, race.name)">
+                <td>{{ race.name }}</td>
+                <td><a :href="race.link">Link</a></td>
+                <td>{{ race.category }}</td>
+                <td>{{ race.date }}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div v-if="showRiders">
+        <button class="btn btn-secondary mb-3" @click="backToRaces">Back to races</button>
+        <h2>{{ currentRaceTitle }}</h2>
+        <div class="form-group">
+            <label for="riderNumber">Rider number:</label>
+            <input type="number" id="riderNumber" v-model="riderNumber" min="1" class="form-control">
+        </div>
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>Number</th>
+                <th>Name</th>
+                <th>Link</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="rider in filteredRiders">
+                <td>{{ rider.number }}</td>
+                <td>{{ rider.name }}</td>
+                <td><a :href="rider.link">Link</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            year: new Date().getFullYear(),
+            month: new Date().getMonth() + 1,
+            races: [],
+            riders: [],
+            riderNumber: null,
+            showRaces: true,
+            showRiders: false,
+            currentRaceTitle: ''
+        },
+        computed: {
+            filteredRiders: function() {
+                if (this.riderNumber === null) {
+                    return this.riders;
+                } else {
+                    return this.riders.filter(rider => rider.number.includes(this.riderNumber));
+                }
+            }
+        },
+        methods: {
+            getRaces: function() {
+                fetch(`https://race-list-qktmorm4qq-ez.a.run.app/?year=${this.year}&month=${this.month}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        this.races = data;
+                        this.showRaces = true;
+                        this.showRiders = false;
+                    });
+            },
+            getStartList: function(raceLink, raceTitle) {
+                let encodedLink = encodeURIComponent(raceLink);
+                this.currentRaceTitle = raceTitle;
+                fetch(`https://rider-list-qktmorm4qq-ez.a.run.app/start_list?race_url=${encodedLink}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        this.riders = [].concat.apply([], data.map(team => team.riders));
+                        this.showRaces = false;
+                        this.showRiders = true;
+                    });
+            },
+            backToRaces: function() {
+                this.showRaces = true;
+                this.showRiders = false;
+                this.riderNumber = null;
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
