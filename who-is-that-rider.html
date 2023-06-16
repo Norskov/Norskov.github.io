@@ -25,6 +25,13 @@
             <label for="month">Month:</label>
             <input type="number" id="month" v-model="month" min="1" max="12" class="form-control">
         </div>
+        <div class="form-group">
+            <label for="gender">Gender:</label>
+            <select id="gender" v-model="gender" class="form-control">
+              <option>Men</option>
+              <option>Women</option>
+            </select>
+        </div>
         <button type="submit" class="btn btn-primary">Get Races</button>
     </form>
     <div v-if="showRaces">
@@ -78,6 +85,7 @@
         data: {
             year: new Date().getFullYear(),
             month: new Date().getMonth() + 1,
+            gender: "Men",
             races: [],
             riders: [],
             riderNumber: null,
@@ -96,7 +104,7 @@
         },
         methods: {
             getRaces: function() {
-                fetch(`https://race-list-qktmorm4qq-ez.a.run.app/?year=${this.year}&month=${this.month}`)
+                fetch(`https://race-list-qktmorm4qq-ez.a.run.app/?year=${this.year}&month=${this.month}&gender=${this.gender}`)
                     .then(response => response.json())
                     .then(data => {
                         this.races = data;
