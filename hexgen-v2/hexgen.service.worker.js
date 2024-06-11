@@ -4,7 +4,7 @@
 // Incrementing CACHE_VERSION will kick off the install event and force
 // previously cached resources to be updated from the network.
 /** @type {string} */
-const CACHE_VERSION = '1718117522|2565566052';
+const CACHE_VERSION = '1718116021|1064671320';
 /** @type {string} */
 const CACHE_PREFIX = 'Hexgen-sw-cache-';
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
